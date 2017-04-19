@@ -4,6 +4,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -36,6 +40,10 @@ import common.Status;
 
 public class Principal extends JFrame implements InterfaceUsuario {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private Registry registryConexaoCliente;
 	private InterfaceServidor conexaoCliente;
@@ -43,10 +51,9 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	private JTable tableContatos;
 	private JTabbedPane tabbedConversas;
 	private EntidadeUsuario user;
-	
+
 	private static Principal global;
 
-	
 	/**
 	 * Create the frame.
 	 * 
@@ -57,16 +64,16 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	 * @param string
 	 */
 	public Principal(String email, char[] senha, String porta, String servidor, String nome) {
-		
+
 		user = new EntidadeUsuario();
-		
+
 		String pass = String.copyValueOf(senha);
-		
+
 		user.setEmail(email);
 		user.setNome(nome);
 		user.setSenha(pass);
 		user.setStatus(Status.ONLINE);
-		
+
 		iniciaRMI(porta, servidor);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,8 +86,15 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		JMenu mnConexo = new JMenu("Conexão");
 		menuBar.add(mnConexo);
 
-		JMenuItem mntmConectar = new JMenuItem("Conectar");
-		mnConexo.add(mntmConectar);
+		JMenuItem mntmTransissao = new JMenuItem("Transmissão");
+		mntmTransissao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				enviarTransmissao();
+				
+			}
+		});
+		mnConexo.add(mntmTransissao);
 
 		JMenuItem mntmNewMenuItem = new JMenuItem("Alterar Dados");
 		mnConexo.add(mntmNewMenuItem);
@@ -185,12 +199,25 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		panel_2.add(scrollPane_1, gbc_scrollPane_1);
 
 		tableContatos = new JTable();
+		tableContatos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					EntidadeUsuario usuario = new EntidadeUsuario();
+					
+					int linha = tableContatos.getSelectedRow();
+					
+					usuario.setNome(tableContatos.getValueAt(linha, 0).toString());
+					usuario.setStatus(Status.valueOf(tableContatos.getValueAt(linha, 1).toString()));
+				}
+			}
+		});
 		scrollPane_1.setViewportView(tableContatos);
 
 		field_pesquisa_contato = new JTextField();
 		GridBagConstraints gbc_field_pesquisa_contato = new GridBagConstraints();
 		gbc_field_pesquisa_contato.insets = new Insets(0, 0, 0, 5);
-		gbc_field_pesquisa_contato.fill = GridBagConstraints.HORIZONTAL;
+		gbc_field_pesquisa_contato.fill = GridBagConstraints.BOTH;
 		gbc_field_pesquisa_contato.gridx = 0;
 		gbc_field_pesquisa_contato.gridy = 1;
 		panel_2.add(field_pesquisa_contato, gbc_field_pesquisa_contato);
@@ -217,63 +244,57 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbc_tabbedPane_1.gridx = 0;
 		gbc_tabbedPane_1.gridy = 0;
 		panel_3.add(tabbedConversas, gbc_tabbedPane_1);
-		
-		JPanel panel_4 = new Conversa();
-		tabbedConversas.addTab("Público", null, panel_4, null);
 
-		
 		global = this;
 	}
-	
-	public static EntidadeUsuario getUser(){
-		return global.user;
-	}
-	
-	public static void enviaArq(Arquivo arquivo){
+
+	public static void enviaArq(Arquivo arquivo) {
 		global.enviarArquivo(arquivo);
 	}
-	
-	public static void enviaMsg(String msg){
+
+	public static void enviaMsg(String msg) {
 		global.enviarMensagem(msg);
 	}
 	
-	public void enviarArquivo(Arquivo arquivo){
+	public void enviarTransmissao(){
+		new Transmissao(conexaoCliente, global.user).setVisible(true);;
+	}
+
+	public void enviarArquivo(Arquivo arquivo) {
 		String titleAt = tabbedConversas.getTitleAt(tabbedConversas.getSelectedIndex());
-		
+
 		try {
-		if(titleAt.equals("Público")){
-			JOptionPane.showMessageDialog(null, "Voçe não pode enviar arquivo para todos");
-		}else{
-			EntidadeUsuario destinatario = new EntidadeUsuario();
-			destinatario.setNome(titleAt);
+			if (titleAt.equals("Público")) {
+				JOptionPane.showMessageDialog(null, "Voçe não pode enviar arquivo para todos");
+			} else {
+				EntidadeUsuario destinatario = new EntidadeUsuario();
+				destinatario.setNome(titleAt);
 				conexaoCliente.enviarArquivo(user, destinatario, arquivo);
-		}
-		
+			}
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public void enviarMensagem(String mensagem){
-		
+
+	public void enviarMensagem(String mensagem) {
+
 		String titleAt = tabbedConversas.getTitleAt(tabbedConversas.getSelectedIndex());
-		
+
 		try {
-		if(titleAt.equals("Público")){
-			conexaoCliente.enviarMensagem(user, mensagem);
-		}else{
+
 			EntidadeUsuario destinatario = new EntidadeUsuario();
 			destinatario.setNome(titleAt);
-				conexaoCliente.enviarMensagem(user, destinatario, mensagem);
-		}
-		
+			conexaoCliente.enviarMensagem(user, destinatario, mensagem);
+			System.out.println(titleAt + " enviou:  " + mensagem);
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	}	
+
+	}
 
 	private void iniciaRMI(String porta, String servidor) {
 		int portaCon = Integer.valueOf(porta);
@@ -292,20 +313,20 @@ public class Principal extends JFrame implements InterfaceUsuario {
 
 	public void receberContatosOnline(List<EntidadeUsuario> lista) throws RemoteException {
 		List<EntidadeUsuario> listaOnline = new ArrayList<>();
-		
+
 		lista.forEach(e -> {
-			if(e.getStatus().equals(Status.ONLINE)){
+			if (!e.getStatus().equals(Status.OFFLINE)) {
 				listaOnline.add(e);
 			}
 		});
-		
+
 		TableModel tb = new MeuModelo(listaOnline);
 		tableContatos.setModel(tb);
 
 	}
 
 	public void receberListaParticipantes(ArrayList<EntidadeUsuario> lista) throws RemoteException {
-		//???????????????????
+
 	}
 
 	public void receberMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
@@ -314,21 +335,24 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		if (totaltabs != 0) {
 			for (int i = 0; i < totaltabs; i++) {
 				String titulo = tabbedConversas.getTitleAt(i);
+
+				System.out.println(remetente.getNome() + " - " + titulo);
 				if (titulo.equalsIgnoreCase(remetente.getNome())) {
 					ativo = true;
 					Conversa conversa = (Conversa) tabbedConversas.getComponentAt(i);
 					conversa.mostrar(remetente, mensagem);
+					System.out.println(conversa.toString());
 					tabbedConversas.setSelectedIndex(i);
 				}
 			}
 		}
 
 		if (!ativo) {
-			
-			Conversa conversa = new Conversa();
+
+			Conversa conversa = new Conversa(user);
 			tabbedConversas.add(remetente.getNome(), conversa);
-			conversa.mostrar(remetente,mensagem);
-			
+			conversa.mostrar(remetente, mensagem);
+
 		}
 	}
 

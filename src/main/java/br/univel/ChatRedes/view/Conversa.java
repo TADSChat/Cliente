@@ -12,21 +12,33 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import common.Arquivo;
 import common.EntidadeUsuario;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class Conversa extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JTextField field_envia_msg;
 	private JTextArea field_area;
 	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	private EntidadeUsuario user;
+	EntidadeUsuario user;
+	
+	public EntidadeUsuario getUser() {
+		return user;
+	}
+	public void setUser(EntidadeUsuario user) {
+		this.user = user;
+	}
 	/**
 	 * Create the panel.
 	 */
-	public Conversa() {
+	public Conversa(EntidadeUsuario user) {
 		
-		user = Principal.getUser();
+		setUser(user);
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0};
@@ -76,11 +88,13 @@ public class Conversa extends JPanel {
 		add(btnArquivo, gbc_btnArquivo);
 
 	}
-
-	public void mostrar(EntidadeUsuario arg0, String arg1) {
+	public void enviaArquivo(EntidadeUsuario destinatario, Arquivo arquivo){
+		Principal.enviaArq(arquivo);
+	}
+	public void mostrar(EntidadeUsuario remetente, String mensagem) {
 		
 		Date data = new Date();
-		field_area.append(sdf.format(data)+" - "+arg0.getNome()+": "+arg1);
+		field_area.append(sdf.format(data)+" - "+remetente.getNome()+": "+mensagem);
 		
 	}
 	
@@ -89,7 +103,7 @@ public class Conversa extends JPanel {
 		Date data = new Date();
 		String mensagem = field_envia_msg.getText();
 		Principal.enviaMsg(mensagem);
-		field_area.append(sdf.format(data)+" - "+user.getNome()+": ");
+		field_area.append(sdf.format(data)+" - "+user.getNome()+": "+mensagem);
 		
 	}
 
