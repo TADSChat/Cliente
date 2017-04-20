@@ -1,30 +1,43 @@
 package br.univel.ChatRedes.view;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JTextField;
 import java.awt.Font;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import common.EntidadeUsuario;
+import common.InterfaceServidor;
+import common.Status;
+import javax.swing.JTextArea;
 
 public class Login extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField field_email;
 	private JTextField field_servidor;
 	private JTextField field_porta;
 	private JPasswordField field_senha;
 	private JTextField field_nome;
+	private EntidadeUsuario user;
+	private Registry registryConexaoCliente;
+	private InterfaceServidor conexaoCliente;
 
 	/**
 	 * Create the frame.
@@ -39,9 +52,9 @@ public class Login extends JFrame {
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel lblNewLabel = new JLabel("TadsZap");
@@ -65,7 +78,7 @@ public class Login extends JFrame {
 		GridBagConstraints gbc_field_nome = new GridBagConstraints();
 		gbc_field_nome.fill = GridBagConstraints.HORIZONTAL;
 		gbc_field_nome.gridwidth = 4;
-		gbc_field_nome.insets = new Insets(0, 0, 5, 5);
+		gbc_field_nome.insets = new Insets(0, 0, 5, 0);
 		gbc_field_nome.gridx = 0;
 		gbc_field_nome.gridy = 2;
 		contentPane.add(field_nome, gbc_field_nome);
@@ -144,18 +157,39 @@ public class Login extends JFrame {
 		
 		JButton btnConectar = new JButton("Conectar");
 		btnConectar.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent e) {
-				new Principal(field_email.getText(),
-								field_senha.getPassword(),
-								field_porta.getText(),
-								field_servidor.getText(),
-								field_nome.getText()).setVisible(true);
-				dispose();
+				
+				user = new EntidadeUsuario();
+
+				String pass = String.copyValueOf(field_senha.getPassword());
+
+				user.setEmail(field_email.getText());
+				user.setNome(field_nome.getText());
+				user.setSenha(pass);
+				user.setStatus(Status.ONLINE);
+				
+				int porta = Integer.valueOf(field_porta.getText());
+					try {
+						registryConexaoCliente = LocateRegistry.getRegistry(field_servidor.getText(), porta);
+						conexaoCliente = (InterfaceServidor) registryConexaoCliente.lookup(InterfaceServidor.NOME);
+						System.out.println("OPA");
+//						conexaoCliente.conectarChat(user, this);
+						new Principal(user, conexaoCliente).setVisible(true);
+						dispose();
+
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(null, "\n\n-------------------------------------------------------\n"
+								+ "ERRO: VERIFIQUE SE O SERVIDOR ESTÃO RODANDO, SE O IP E PORTA ESTÃO"
+								+ " CORRETOS, SE NÃO HÁ BLOQUEIO DE FIREWALL OU ANTIVIRUS.\n"
+								+ "-------------------------------------------------------------------\n\n");
+
+					}
 			}
 		});
 		GridBagConstraints gbc_btnConectar = new GridBagConstraints();
 		gbc_btnConectar.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnConectar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnConectar.insets = new Insets(0, 0, 5, 5);
 		gbc_btnConectar.gridx = 2;
 		gbc_btnConectar.gridy = 11;
 		contentPane.add(btnConectar, gbc_btnConectar);
@@ -167,6 +201,7 @@ public class Login extends JFrame {
 			}
 		});
 		GridBagConstraints gbc_btnSair = new GridBagConstraints();
+		gbc_btnSair.insets = new Insets(0, 0, 5, 0);
 		gbc_btnSair.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSair.gridx = 3;
 		gbc_btnSair.gridy = 11;
