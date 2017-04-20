@@ -4,12 +4,17 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,17 +40,21 @@ import common.EntidadeUsuario;
 import common.InterfaceServidor;
 import common.InterfaceUsuario;
 import common.Status;
+import javax.swing.JComboBox;
 
 public class Principal extends JFrame implements InterfaceUsuario {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private Registry registryConexaoCliente;
 	private InterfaceServidor conexaoCliente;
 	private JTextField field_pesquisa_contato;
 	private JTable tableContatos;
 	private JTabbedPane tabbedConversas;
 	private EntidadeUsuario user;
-	
+
 	private static Principal global;
 
 	/**
@@ -57,8 +66,13 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	 * @param string2
 	 * @param string
 	 */
+<<<<<<< HEAD
 	public Principal(String email, char[] senha, String porta, String servidor) {
+=======
+	public Principal(EntidadeUsuario user, InterfaceServidor con) {
+>>>>>>> refs/remotes/origin/master
 		
+<<<<<<< HEAD
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(this);
@@ -67,9 +81,18 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		}
 		 
 		user = new EntidadeUsuario();
+=======
+		this.conexaoCliente = con;
+>>>>>>> refs/remotes/origin/master
 		
-		String pass = String.copyValueOf(senha);
+		try {
+			conexaoCliente.conectarChat(user, this);
+		} catch (RemoteException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
+<<<<<<< HEAD
 		user.setEmail(email);
 //		user.setNome(nome);
 		user.setSenha(pass);
@@ -77,6 +100,8 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		
 		iniciaRMI(porta, servidor);
 
+=======
+>>>>>>> refs/remotes/origin/master
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("TadsZap");
 		setBounds(100, 100, 350, 600);
@@ -87,13 +112,30 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		JMenu mnConexo = new JMenu("Conexão");
 		menuBar.add(mnConexo);
 
-		JMenuItem mntmConectar = new JMenuItem("Conectar");
-		mnConexo.add(mntmConectar);
+		JMenuItem mntmTransissao = new JMenuItem("Transmissão");
+		mntmTransissao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				enviarTransmissao();
+				
+			}
+		});
+		mnConexo.add(mntmTransissao);
 
 		JMenuItem mntmNewMenuItem = new JMenuItem("Alterar Dados");
 		mnConexo.add(mntmNewMenuItem);
 
 		JMenuItem mntmSair = new JMenuItem("Sair");
+		mntmSair.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					conexaoCliente.desconectarChat(user);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		mnConexo.add(mntmSair);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -122,8 +164,12 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
+<<<<<<< HEAD
 //		JLabel lblNomeLogado = new JLabel(nome);
 		JLabel lblNomeLogado = new JLabel();
+=======
+		JLabel lblNomeLogado = new JLabel(user.getNome());
+>>>>>>> refs/remotes/origin/master
 		lblNomeLogado.setFont(new Font("Tahoma", Font.PLAIN, 21));
 		GridBagConstraints gbc_lblNomeLogado = new GridBagConstraints();
 		gbc_lblNomeLogado.insets = new Insets(0, 0, 5, 0);
@@ -131,33 +177,26 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbc_lblNomeLogado.gridx = 0;
 		gbc_lblNomeLogado.gridy = 0;
 		panel.add(lblNomeLogado, gbc_lblNomeLogado);
-
-		JRadioButton rdbtnOnline = new JRadioButton("Online");
-		GridBagConstraints gbc_rdbtnOnline = new GridBagConstraints();
-		gbc_rdbtnOnline.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnOnline.gridx = 0;
-		gbc_rdbtnOnline.gridy = 2;
-		panel.add(rdbtnOnline, gbc_rdbtnOnline);
-
-		JRadioButton rdbtnOffline = new JRadioButton("Offline");
-		GridBagConstraints gbc_rdbtnOffline = new GridBagConstraints();
-		gbc_rdbtnOffline.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnOffline.gridx = 1;
-		gbc_rdbtnOffline.gridy = 2;
-		panel.add(rdbtnOffline, gbc_rdbtnOffline);
-
-		JRadioButton rdbtnOcupado = new JRadioButton("Ocupado");
-		GridBagConstraints gbc_rdbtnOcupado = new GridBagConstraints();
-		gbc_rdbtnOcupado.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnOcupado.gridx = 2;
-		gbc_rdbtnOcupado.gridy = 2;
-		panel.add(rdbtnOcupado, gbc_rdbtnOcupado);
-
-		JRadioButton rdbtnAusente = new JRadioButton("Ausente");
-		GridBagConstraints gbc_rdbtnAusente = new GridBagConstraints();
-		gbc_rdbtnAusente.gridx = 3;
-		gbc_rdbtnAusente.gridy = 2;
-		panel.add(rdbtnAusente, gbc_rdbtnAusente);
+		
+		JComboBox<Status> CBStatus = new JComboBox<Status>();
+		CBStatus.setModel(new DefaultComboBoxModel<Status>(Status.values()));
+		CBStatus.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					user.setStatus(Status.valueOf(CBStatus.getSelectedItem().toString()));
+					conexaoCliente.atualizarStatus(user);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		GridBagConstraints gbc_CBStatus = new GridBagConstraints();
+		gbc_CBStatus.gridwidth = 4;
+		gbc_CBStatus.fill = GridBagConstraints.HORIZONTAL;
+		gbc_CBStatus.gridx = 0;
+		gbc_CBStatus.gridy = 2;
+		panel.add(CBStatus, gbc_CBStatus);
 
 		JPanel panel_1 = new JPanel();
 		splitPane.setRightComponent(panel_1);
@@ -194,12 +233,27 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		panel_2.add(scrollPane_1, gbc_scrollPane_1);
 
 		tableContatos = new JTable();
+		tableContatos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					EntidadeUsuario usuario = new EntidadeUsuario();
+					
+					int linha = tableContatos.getSelectedRow();
+					
+					usuario.setNome(tableContatos.getValueAt(linha, 0).toString());
+					usuario.setStatus(Status.valueOf(tableContatos.getValueAt(linha, 1).toString()));
+					
+					tabbedConversas.add(usuario.getNome(), new Conversa(usuario));
+				}
+			}
+		});
 		scrollPane_1.setViewportView(tableContatos);
 
 		field_pesquisa_contato = new JTextField();
 		GridBagConstraints gbc_field_pesquisa_contato = new GridBagConstraints();
 		gbc_field_pesquisa_contato.insets = new Insets(0, 0, 0, 5);
-		gbc_field_pesquisa_contato.fill = GridBagConstraints.HORIZONTAL;
+		gbc_field_pesquisa_contato.fill = GridBagConstraints.BOTH;
 		gbc_field_pesquisa_contato.gridx = 0;
 		gbc_field_pesquisa_contato.gridy = 1;
 		panel_2.add(field_pesquisa_contato, gbc_field_pesquisa_contato);
@@ -226,97 +280,76 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbc_tabbedPane_1.gridx = 0;
 		gbc_tabbedPane_1.gridy = 0;
 		panel_3.add(tabbedConversas, gbc_tabbedPane_1);
-		
-		JPanel panel_4 = new Conversa();
-		tabbedConversas.addTab("Público", null, panel_4, null);
 
-		
 		global = this;
 		
 		
 	}
-	
-	public static EntidadeUsuario getUser(){
-		return global.user;
-	}
-	
-	public static void enviaArq(Arquivo arquivo){
+
+	public static void enviaArq(Arquivo arquivo) {
 		global.enviarArquivo(arquivo);
 	}
-	
-	public static void enviaMsg(String msg){
+
+	public static void enviaMsg(String msg) {
 		global.enviarMensagem(msg);
 	}
 	
-	public void enviarArquivo(Arquivo arquivo){
+	public void enviarTransmissao(){
+		new Transmissao(conexaoCliente, global.user).setVisible(true);;
+	}
+
+	public void enviarArquivo(Arquivo arquivo) {
 		String titleAt = tabbedConversas.getTitleAt(tabbedConversas.getSelectedIndex());
-		
+
 		try {
-		if(titleAt.equals("Público")){
-			JOptionPane.showMessageDialog(null, "Voçe não pode enviar arquivo para todos");
-		}else{
-			EntidadeUsuario destinatario = new EntidadeUsuario();
-			destinatario.setNome(titleAt);
+			if (titleAt.equals("Público")) {
+				JOptionPane.showMessageDialog(null, "Voçe não pode enviar arquivo para todos");
+			} else {
+				EntidadeUsuario destinatario = new EntidadeUsuario();
+				destinatario.setNome(titleAt);
 				conexaoCliente.enviarArquivo(user, destinatario, arquivo);
-		}
-		
+			}
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public void enviarMensagem(String mensagem){
-		
+
+	public void enviarMensagem(String mensagem) {
+
 		String titleAt = tabbedConversas.getTitleAt(tabbedConversas.getSelectedIndex());
-		
+
 		try {
-		if(titleAt.equals("Público")){
-			conexaoCliente.enviarMensagem(user, mensagem);
-		}else{
+
 			EntidadeUsuario destinatario = new EntidadeUsuario();
 			destinatario.setNome(titleAt);
-				conexaoCliente.enviarMensagem(user, destinatario, mensagem);
-		}
-		
+			conexaoCliente.enviarMensagem(user, destinatario, mensagem);
+			System.out.println(titleAt + " enviou:  " + mensagem);
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	}	
 
-	private void iniciaRMI(String porta, String servidor) {
-		int portaCon = Integer.valueOf(porta);
-		try {
-			registryConexaoCliente = LocateRegistry.getRegistry(servidor, portaCon);
-			conexaoCliente = (InterfaceServidor) registryConexaoCliente.lookup(InterfaceServidor.NOME);
-
-		} catch (Exception e) {
-			System.out.println("\n\n-------------------------------------------------------\n"
-					+ "ERRO: VERIFIQUE SE O SERVIDOR ESTÃO RODANDO, SE O IP E PORTA ESTÃO"
-					+ " CORRETOS, SE NÃO HÁ BLOQUEIO DE FIREWALL OU ANTIVIRUS.\n"
-					+ "-------------------------------------------------------------------\n\n");
-
-		}
 	}
 
 	public void receberContatosOnline(List<EntidadeUsuario> lista) throws RemoteException {
 		List<EntidadeUsuario> listaOnline = new ArrayList<>();
-		
+
 		lista.forEach(e -> {
-			if(e.getStatus().equals(Status.ONLINE)){
+			if (!e.getStatus().equals(Status.OFFLINE)) {
 				listaOnline.add(e);
 			}
 		});
-		
+
 		TableModel tb = new MeuModelo(listaOnline);
 		tableContatos.setModel(tb);
 
 	}
 
 	public void receberListaParticipantes(ArrayList<EntidadeUsuario> lista) throws RemoteException {
-		//???????????????????
+
 	}
 
 	public void receberMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
@@ -325,21 +358,24 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		if (totaltabs != 0) {
 			for (int i = 0; i < totaltabs; i++) {
 				String titulo = tabbedConversas.getTitleAt(i);
+
+				System.out.println(remetente.getNome() + " - " + titulo);
 				if (titulo.equalsIgnoreCase(remetente.getNome())) {
 					ativo = true;
 					Conversa conversa = (Conversa) tabbedConversas.getComponentAt(i);
 					conversa.mostrar(remetente, mensagem);
+					System.out.println(conversa.toString());
 					tabbedConversas.setSelectedIndex(i);
 				}
 			}
 		}
 
 		if (!ativo) {
-			
-			Conversa conversa = new Conversa();
+
+			Conversa conversa = new Conversa(user);
 			tabbedConversas.add(remetente.getNome(), conversa);
-			conversa.mostrar(remetente,mensagem);
-			
+			conversa.mostrar(remetente, mensagem);
+
 		}
 	}
 

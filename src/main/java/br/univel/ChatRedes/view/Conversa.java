@@ -14,6 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import common.Arquivo;
 import common.EntidadeUsuario;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
