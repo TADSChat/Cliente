@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import common.EntidadeUsuario;
 import java.awt.event.ActionListener;
@@ -25,6 +27,13 @@ public class Conversa extends JPanel {
 	 * Create the panel.
 	 */
 	public Conversa() {
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		user = Principal.getUser();
 		

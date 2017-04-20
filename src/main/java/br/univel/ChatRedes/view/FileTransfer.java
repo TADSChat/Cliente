@@ -17,6 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import common.Arquivo;
@@ -30,6 +32,14 @@ public class FileTransfer extends JFrame {
 	 * Create the frame.
 	 */
 	public FileTransfer(EntidadeUsuario remetente, Arquivo arquivo) {
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		setVisible(true);
 		setTitle("File Transfer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -113,5 +123,4 @@ public class FileTransfer extends JFrame {
 		gbc_btnRecusar.gridy = 7;
 		contentPane.add(btnRecusar, gbc_btnRecusar);
 	}
-
 }

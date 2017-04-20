@@ -24,6 +24,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableModel;
 
@@ -46,7 +48,6 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	
 	private static Principal global;
 
-	
 	/**
 	 * Create the frame.
 	 * 
@@ -56,14 +57,21 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	 * @param string2
 	 * @param string
 	 */
-	public Principal(String email, char[] senha, String porta, String servidor, String nome) {
+	public Principal(String email, char[] senha, String porta, String servidor) {
 		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		 
 		user = new EntidadeUsuario();
 		
 		String pass = String.copyValueOf(senha);
 		
 		user.setEmail(email);
-		user.setNome(nome);
+//		user.setNome(nome);
 		user.setSenha(pass);
 		user.setStatus(Status.ONLINE);
 		
@@ -114,7 +122,8 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
-		JLabel lblNomeLogado = new JLabel(nome);
+//		JLabel lblNomeLogado = new JLabel(nome);
+		JLabel lblNomeLogado = new JLabel();
 		lblNomeLogado.setFont(new Font("Tahoma", Font.PLAIN, 21));
 		GridBagConstraints gbc_lblNomeLogado = new GridBagConstraints();
 		gbc_lblNomeLogado.insets = new Insets(0, 0, 5, 0);
@@ -223,6 +232,8 @@ public class Principal extends JFrame implements InterfaceUsuario {
 
 		
 		global = this;
+		
+		
 	}
 	
 	public static EntidadeUsuario getUser(){
