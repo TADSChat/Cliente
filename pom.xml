@@ -24,16 +24,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-<<<<<<< HEAD
 	    <groupId>jgoodies</groupId>
 	    <artifactId>forms</artifactId>
 	    <version>1.0.5</version>
 	</dependency>
-=======
+    <dependency>
       <groupId>br.univel</groupId>
       <artifactId>ChatCommon</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
->>>>>>> refs/remotes/origin/master
   </dependencies>
 </project>
