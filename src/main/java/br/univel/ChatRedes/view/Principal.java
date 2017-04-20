@@ -66,13 +66,9 @@ public class Principal extends JFrame implements InterfaceUsuario {
 	 * @param string2
 	 * @param string
 	 */
-<<<<<<< HEAD
-	public Principal(String email, char[] senha, String porta, String servidor) {
-=======
+
 	public Principal(EntidadeUsuario user, InterfaceServidor con) {
->>>>>>> refs/remotes/origin/master
 		
-<<<<<<< HEAD
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(this);
@@ -81,9 +77,7 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		}
 		 
 		user = new EntidadeUsuario();
-=======
 		this.conexaoCliente = con;
->>>>>>> refs/remotes/origin/master
 		
 		try {
 			conexaoCliente.conectarChat(user, this);
@@ -92,7 +86,6 @@ public class Principal extends JFrame implements InterfaceUsuario {
 			e2.printStackTrace();
 		}
 		
-<<<<<<< HEAD
 		user.setEmail(email);
 //		user.setNome(nome);
 		user.setSenha(pass);
@@ -100,8 +93,6 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		
 		iniciaRMI(porta, servidor);
 
-=======
->>>>>>> refs/remotes/origin/master
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("TadsZap");
 		setBounds(100, 100, 350, 600);
@@ -164,12 +155,7 @@ public class Principal extends JFrame implements InterfaceUsuario {
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
-<<<<<<< HEAD
-//		JLabel lblNomeLogado = new JLabel(nome);
-		JLabel lblNomeLogado = new JLabel();
-=======
 		JLabel lblNomeLogado = new JLabel(user.getNome());
->>>>>>> refs/remotes/origin/master
 		lblNomeLogado.setFont(new Font("Tahoma", Font.PLAIN, 21));
 		GridBagConstraints gbc_lblNomeLogado = new GridBagConstraints();
 		gbc_lblNomeLogado.insets = new Insets(0, 0, 5, 0);
