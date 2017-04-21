@@ -12,7 +12,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -52,6 +54,9 @@ public class Principal extends JFrame {
 	private JTabbedPane tabbedConversas;
 	private Usuario usuario;
 	private final EntidadeUsuario user;
+	private Conversa conversa;
+	
+	private Map<String, ConversaPrivada> paineisConversas;
 
 	private static Principal global;
 
@@ -68,6 +73,8 @@ public class Principal extends JFrame {
 	public Principal(Usuario usuario) {
 		this.usuario = usuario;
 		user = usuario.getEntidadeUsuario();
+		
+		paineisConversas = new HashMap<String, ConversaPrivada>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("TadsZap");
@@ -209,6 +216,9 @@ public class Principal extends JFrame {
 		gbc_tabbedPane_1.gridx = 0;
 		gbc_tabbedPane_1.gridy = 0;
 		panel_3.add(tabbedConversas, gbc_tabbedPane_1);
+		
+		conversa = new Conversa(usuario);
+		tabbedConversas.add("Chat", conversa);
 
 		global = this;		
 	}
@@ -216,5 +226,19 @@ public class Principal extends JFrame {
 	public void setUsuarios(List<EntidadeUsuario> lista){
 		TableModel usuarioModel = new UsuarioModelo(lista);
 		tableContatos.setModel(usuarioModel);
+	}
+	
+	public void receberMensagem(EntidadeUsuario remetente, String mensagem){
+		boolean found = false;
+		paineisConversas.forEach((k,e) -> {
+			if(k.equals(remetente.getEmail())){
+				e.receberMensagem(mensagem);
+			}
+		});
+		if(!found){
+			ConversaPrivada conversa = new ConversaPrivada(usuario, remetente);
+			paineisConversas.put(remetente.getEmail(), conversa);
+			conversa.receberMensagem(mensagem);
+		}
 	}
 }

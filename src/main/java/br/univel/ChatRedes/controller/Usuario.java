@@ -59,17 +59,22 @@ public class Usuario implements InterfaceUsuario{
 
 	@Override
 	public void receberMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
-		
+		principal.receberMensagem(remetente, mensagem);
 	}
 
 	@Override
 	public void receberArquivo(EntidadeUsuario remetente, Arquivo arquivo) throws RemoteException {
-		
+		if(JOptionPane.showConfirmDialog(principal, "Deseja receber o arquivo " +arquivo.getNome()+"."+arquivo.getExtensao()+"?") == 0){
+			servidor.enviarMensagem(usuario, remetente, "O arquivo "+arquivo.getNome()+"."+arquivo.getExtensao()+" foi aceito.");
+			
+			
+			
+		}
 	}
 
 	@Override
 	public void receberListaParticipantes(ArrayList<EntidadeUsuario> arrayList) throws RemoteException {
-		
+		principal.setUsuarios(arrayList);
 	}
 	
 	public void enviarArquivo(EntidadeUsuario destinatario, Arquivo arquivo) throws NoServerException{
@@ -129,7 +134,7 @@ public class Usuario implements InterfaceUsuario{
 			usuario.setEmail(email);
 			usuario.setSenha(password);
 			
-			registry = LocateRegistry.getRegistry(IP.getHostAddress(), 2022);
+			registry = LocateRegistry.getRegistry(IP.getHostAddress(), 2024);
 
 			interfaceUsuario = (InterfaceUsuario) UnicastRemoteObject.exportObject(this, 0);
 			

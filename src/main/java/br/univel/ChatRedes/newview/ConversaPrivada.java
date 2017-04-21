@@ -18,6 +18,7 @@ import br.univel.ChatRedes.controller.Usuario;
 import common.Arquivo;
 import common.EntidadeUsuario;
 import java.awt.event.ActionListener;
+import java.beans.DesignMode;
 import java.awt.event.ActionEvent;
 
 public class ConversaPrivada extends JPanel {
@@ -91,10 +92,10 @@ public class ConversaPrivada extends JPanel {
 
 	}
 
-	public void mostrar(EntidadeUsuario arg0, String arg1) {
+	public void receberMensagem(String mensagem) {
 		
 		Date data = new Date();
-		field_area.append(sdf.format(data)+" - "+arg0.getNome()+": "+arg1);
+		field_area.append(sdf.format(data)+" - "+ destinatario.getNome() +": "+mensagem);
 		
 	}
 	
