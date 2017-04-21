@@ -53,12 +53,13 @@ public class Principal extends JFrame {
 	private JTable tableContatos;
 	private JTabbedPane tabbedConversas;
 	private Usuario usuario;
-	private final EntidadeUsuario user;
+	private EntidadeUsuario user;
 	private Conversa conversa;
 	
 	private Map<String, ConversaPrivada> paineisConversas;
 
 	private static Principal global;
+	private JLabel lblNomeLogado;
 
 	/**
 	 * Create the frame.
@@ -96,6 +97,7 @@ public class Principal extends JFrame {
 		mntmSair.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				usuario.desconectar();
 				System.exit(0);
 			}
 		});
@@ -127,7 +129,7 @@ public class Principal extends JFrame {
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel.setLayout(gbl_panel);
 
-		JLabel lblNomeLogado = new JLabel(user.getNome());
+		lblNomeLogado = new JLabel();
 		lblNomeLogado.setFont(new Font("Tahoma", Font.PLAIN, 21));
 		GridBagConstraints gbc_lblNomeLogado = new GridBagConstraints();
 		gbc_lblNomeLogado.insets = new Insets(0, 0, 5, 0);
@@ -178,7 +180,6 @@ public class Principal extends JFrame {
 		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
 		gbc_scrollPane_1.gridwidth = 2;
 		gbc_scrollPane_1.insets = new Insets(0, 0, 5, 5);
-		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_1.gridx = 0;
 		gbc_scrollPane_1.gridy = 0;
 		panel_2.add(scrollPane_1, gbc_scrollPane_1);
@@ -221,6 +222,11 @@ public class Principal extends JFrame {
 		tabbedConversas.add("Chat", conversa);
 
 		global = this;		
+	}
+	
+	public void updateItens(){
+		user = usuario.getEntidadeUsuario();
+		lblNomeLogado.setText(user.getNome());
 	}
 	
 	public void setUsuarios(List<EntidadeUsuario> lista){

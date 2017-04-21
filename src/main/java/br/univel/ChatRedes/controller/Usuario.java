@@ -1,12 +1,18 @@
 package br.univel.ChatRedes.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,11 +59,6 @@ public class Usuario implements InterfaceUsuario{
 	}
 
 	@Override
-	public void receberContatosOnline(List<EntidadeUsuario> lista) throws RemoteException {
-		principal.setUsuarios(lista);
-	}
-
-	@Override
 	public void receberMensagem(EntidadeUsuario remetente, String mensagem) throws RemoteException {
 		principal.receberMensagem(remetente, mensagem);
 	}
@@ -66,14 +67,35 @@ public class Usuario implements InterfaceUsuario{
 	public void receberArquivo(EntidadeUsuario remetente, Arquivo arquivo) throws RemoteException {
 		if(JOptionPane.showConfirmDialog(principal, "Deseja receber o arquivo " +arquivo.getNome()+"."+arquivo.getExtensao()+"?") == 0){
 			servidor.enviarMensagem(usuario, remetente, "O arquivo "+arquivo.getNome()+"."+arquivo.getExtensao()+" foi aceito.");
+			File share = new File("share");
+			if(!share.exists()){
+				share.mkdir();
+			}
+			if(arquivo.getDados() != null){				
+				try {
+					String path = "share"+File.separatorChar+arquivo.getNome()+"."+arquivo.getExtensao();
+					File file = new File(path);
+					
+					if(file.exists()){
+						Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+						path = "share"+File.separatorChar+ timestamp.getTime() + "_" + arquivo.getNome();
+					}
+					Files.write(Paths.get(path), arquivo.getDados(), StandardOpenOption.CREATE);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}else{
+				servidor.enviarMensagem(usuario, remetente, "ERRO: O arquivo "+arquivo.getNome()+"."+arquivo.getExtensao()+" não possui dados.");
+				JOptionPane.showMessageDialog(principal, "ERRO: O arquivo "+arquivo.getNome()+"."+arquivo.getExtensao()+" não possui dados.");
+			}
 			
-			
-			
+		}else{
+			servidor.enviarMensagem(usuario, remetente, "O arquivo "+arquivo.getNome()+"."+arquivo.getExtensao()+" não foi aceito.");
 		}
 	}
 
 	@Override
-	public void receberListaParticipantes(ArrayList<EntidadeUsuario> arrayList) throws RemoteException {
+	public void receberListaParticipantes(List<EntidadeUsuario> arrayList) throws RemoteException {
 		principal.setUsuarios(arrayList);
 	}
 	
@@ -128,15 +150,18 @@ public class Usuario implements InterfaceUsuario{
 	
 	public void conectar(String email, String password, String servidor, int porta){
 		try {
+			principal = new Principal(Usuario.this);
+			if(interfaceUsuario == null){
+				interfaceUsuario = (InterfaceUsuario) UnicastRemoteObject.exportObject(this, 0);
+			}
+			registry = LocateRegistry.createRegistry(1819);
+			registry.rebind(InterfaceServidor.NOME, interfaceUsuario);
+			
 			registry = LocateRegistry.getRegistry(servidor, porta);
 			this.servidor = (InterfaceServidor) registry.lookup(InterfaceServidor.NOME);
 			usuario = new EntidadeUsuario();
 			usuario.setEmail(email);
 			usuario.setSenha(password);
-			
-			registry = LocateRegistry.getRegistry(IP.getHostAddress(), 2024);
-
-			interfaceUsuario = (InterfaceUsuario) UnicastRemoteObject.exportObject(this, 0);
 			
 			Thread.sleep(100);
 			
@@ -145,10 +170,7 @@ public class Usuario implements InterfaceUsuario{
 				JOptionPane.showMessageDialog(login, "ERRO: Login não efetuado.");
 			}else{
 				login.setVisible(false);
-				principal = new Principal(this);
-				
-				
-				
+				principal.updateItens();
 				principal.setVisible(true);
 			}
 			
@@ -183,7 +205,13 @@ public class Usuario implements InterfaceUsuario{
 	}
 	
 	public void setStatus(Status status){
-		usuario.setStatus(status);
+		try {
+			usuario.setStatus(status);
+			servidor.atualizarStatus(usuario);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
